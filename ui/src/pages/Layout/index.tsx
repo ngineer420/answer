@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { FC, memo, useEffect } from 'react';
+import { FC, memo, useEffect, useState } from 'react';
 import { Outlet, useLocation, ScrollRestoration } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 
@@ -30,6 +30,7 @@ import {
   errorCodeStore,
   siteSecurityStore,
   themeSettingStore,
+  customizeStore,
 } from '@/stores';
 import {
   Header,
@@ -59,6 +60,17 @@ const Layout: FC = () => {
   const { show: showLoginToContinueModal } = loginToContinueStore();
   const { data: notificationData } = useQueryNotificationStatus();
   const layout = themeSettingStore((state) => state.layout);
+  const storedCustomHeader = customizeStore((state) => state.custom_header);
+  // Seeded from whatever the server already painted into the slot. The store is
+  // filled from an API call, so on the first render it is still empty -- and
+  // rendering empty would blank the server's markup for exactly as long as that
+  // request takes, which is the flash this is all trying to avoid. Falling back
+  // to the DOM's own content means the first render reproduces what is already
+  // on screen.
+  const [paintedCustomHeader] = useState(
+    () => document.getElementById('custom-header-slot')?.innerHTML ?? '',
+  );
+  const customHeader = storedCustomHeader || paintedCustomHeader;
   useEffect(() => {
     // handle footnote links
     const fixFootnoteLinks = () => {
@@ -211,10 +223,20 @@ const Layout: FC = () => {
           revalidateOnFocus: false,
         }}>
         <Header />
-        {/* Where custom header HTML is injected. Sits below the site header
-            rather than above it, which is where a site actually wants a banner;
-            see handleCustomHeader in components/Customize. */}
-        <div id="custom-header-slot" />
+        {/* Custom header content, below the site header rather than above it,
+            which is where a site actually wants a banner.
+
+            Rendered here rather than injected into the DOM after mount. React
+            owns everything inside #root, so injected markup is destroyed the
+            moment it takes over, and re-adding it afterwards produces a visible
+            flash: the server paints the banner, hydration removes it, an effect
+            puts it back. Rendering it as part of the tree means the server's
+            markup and React's output are the same thing, and nothing moves. */}
+        <div
+          id="custom-header-slot"
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{ __html: customHeader || '' }}
+        />
         <div
           // Which page this is, for stylesheets and for the custom header and
           // footer areas, which are injected site-wide and otherwise have no way

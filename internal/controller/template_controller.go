@@ -606,6 +606,11 @@ func (tc *TemplateController) html(ctx *gin.Context, code int, tpl string, siteI
 	data["FooterCode"] = siteInfo.CustomCssHtml.CustomFooter
 	data["Version"] = constant.Version
 	data["Revision"] = constant.Revision
+	// Which page this is, matching what ui/src/pages/Layout emits so a stylesheet
+	// sees the same value before and after hydration. Without it here, anything
+	// keyed on the route only takes effect once React has mounted, which shows up
+	// as a flash.
+	data["route"] = routeNameFromPath(ctx.Request.URL.Path)
 	_, ok := data["path"]
 	if !ok {
 		data["path"] = ""
@@ -665,4 +670,27 @@ func (tc *TemplateController) checkPrivateMode(ctx *gin.Context) bool {
 		return true
 	}
 	return false
+}
+
+// routeNameFromPath names the current page for templates and stylesheets. It
+// mirrors the rule in ui/src/pages/Layout: a detail page shares its first
+// segment with its list page, so depth is what separates /questions from
+// /questions/<id>.
+func routeNameFromPath(path string) string {
+	segments := make([]string, 0, 2)
+	for _, segment := range strings.Split(path, "/") {
+		if segment != "" {
+			segments = append(segments, segment)
+		}
+	}
+	if len(segments) == 0 {
+		return "home"
+	}
+	if segments[0] == "questions" {
+		if len(segments) > 1 {
+			return "question"
+		}
+		return "questions"
+	}
+	return segments[0]
 }

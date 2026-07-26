@@ -23,9 +23,9 @@ import { useLocation } from 'react-router-dom';
 import { customizeStore } from '@/stores';
 
 const CUSTOM_MARK_HEAD = 'customize_head';
-const CUSTOM_MARK_HEADER = 'customize_header';
-// The element the layout renders below the site header for this content.
-export const CUSTOM_HEADER_SLOT_ID = 'custom-header-slot';
+// The header area is NOT handled here. It is rendered by pages/Layout as part
+// of the React tree, because it lives inside #root and anything injected there
+// is destroyed when React takes over -- see the comment on the slot.
 const CUSTOM_MARK_FOOTER = 'customize_footer';
 
 const makeMarker = (mark) => {
@@ -106,49 +106,28 @@ const handleCustomHead = (content) => {
   renderCustomArea(el, CUSTOM_MARK_HEAD, 'beforeend', content);
 };
 
-const handleCustomHeader = (content) => {
-  // Prefer the slot the layout provides, which sits below the site header.
-  // Injecting at the top of <body> puts custom header content above the nav
-  // bar, outside the app root entirely, so it cannot be moved back into place
-  // with CSS -- the nav bar and the page are both inside #root and the injected
-  // node is a sibling of it. Anything a site wants under its own header, which
-  // is most things, was therefore unreachable.
-  //
-  // Falls back to <body> when the slot is absent, so this is a no-op for any
-  // layout that has not opted in.
-  const el = document.getElementById(CUSTOM_HEADER_SLOT_ID) || document.body;
-  renderCustomArea(el, CUSTOM_MARK_HEADER, 'afterbegin', content);
-};
-
 const handleCustomFooter = (content) => {
   const el = document.body;
   renderCustomArea(el, CUSTOM_MARK_FOOTER, 'beforeend', content);
 };
 
 const Index: FC = () => {
-  const { custom_head, custom_header, custom_footer } = customizeStore(
-    (state) => state,
-  );
+  const { custom_head, custom_footer } = customizeStore((state) => state);
   const { pathname } = useLocation();
 
   useEffect(() => {
-    // The marker means the server already rendered this page's custom areas.
-    // It is removed either way, but injection still has to run: the header area
-    // is rendered inside #root, and React replaces #root's contents when it
-    // takes over, so anything the server put there is gone by now. Skipping
-    // because "the server did it" leaves the page with no custom header at all.
-    //
-    // Re-injecting is safe. renderCustomArea brackets its output with comment
-    // markers and clears whatever sits between them first, so running twice
-    // replaces rather than duplicates.
+    // Drop the server-render marker, then refresh the head and footer areas
+    // regardless of whether the server had already written them. Both live
+    // outside #root, so re-running is a replace, not a duplicate:
+    // renderCustomArea brackets its output with comment markers and clears what
+    // lies between them first.
     document.querySelector('meta[name="go-template"]')?.remove();
 
     setTimeout(() => {
       handleCustomHead(custom_head);
     }, 1000);
-    handleCustomHeader(custom_header);
     handleCustomFooter(custom_footer);
-  }, [custom_head, custom_header, custom_footer]);
+  }, [custom_head, custom_footer]);
 
   useEffect(() => {
     /**
