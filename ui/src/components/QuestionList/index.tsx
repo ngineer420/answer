@@ -40,6 +40,8 @@ import { useSkeletonControl } from '@/hooks';
 import Storage from '@/utils/storage';
 import { LIST_VIEW_STORAGE_KEY } from '@/common/constants';
 
+import './index.scss';
+
 export const QUESTION_ORDER_KEYS: Type.QuestionOrderBy[] = [
   'newest',
   'active',
@@ -153,65 +155,86 @@ const QuestionList: FC<Props> = ({
                     )
                   }
                   className="py-3 px-2 border-start-0 border-end-0 position-relative pointer">
-                  <div className="d-flex flex-wrap text-secondary small mb-12">
-                    <BaseUserCard
-                      data={li.operator}
-                      className="me-1"
-                      avatarClass="me-1"
-                    />
-                    •
-                    <FormatTime
-                      time={
-                        curOrder === 'active' ? li.operated_at : li.created_at
-                      }
-                      className="text-secondary ms-1 flex-shrink-0"
-                    />
-                  </div>
-                  <h5 className="text-wrap text-break">
-                    <NavLink
-                      className="link-dark d-block"
-                      onClick={(e) => e.stopPropagation()}
-                      to={pathFactory.questionLanding(li.id, li.url_title)}>
-                      {li.title}
-                      {li.status === 2 ? ` [${t('closed')}]` : ''}
-                    </NavLink>
-                  </h5>
-                  {viewType === 'card' && (
-                    <div className="text-truncate-2 mb-2">
-                      <NavLink
-                        to={pathFactory.questionLanding(li.id, li.url_title)}
-                        className="d-block small text-body"
-                        dangerouslySetInnerHTML={{ __html: li.description }}
-                        onClick={(e) => e.stopPropagation()}
-                      />
-                    </div>
-                  )}
+                  <div className="d-flex align-items-start gap-3">
+                    <div className="flex-grow-1 min-w-0">
+                      <div className="d-flex flex-wrap text-secondary small mb-12">
+                        <BaseUserCard
+                          data={li.operator}
+                          className="me-1"
+                          avatarClass="me-1"
+                        />
+                        •
+                        <FormatTime
+                          time={
+                            curOrder === 'active'
+                              ? li.operated_at
+                              : li.created_at
+                          }
+                          className="text-secondary ms-1 flex-shrink-0"
+                        />
+                      </div>
+                      <h5 className="text-wrap text-break">
+                        <NavLink
+                          className="link-dark d-block"
+                          onClick={(e) => e.stopPropagation()}
+                          to={pathFactory.questionLanding(li.id, li.url_title)}>
+                          {li.title}
+                          {li.status === 2 ? ` [${t('closed')}]` : ''}
+                        </NavLink>
+                      </h5>
+                      {viewType === 'card' && (
+                        <div className="text-truncate-2 mb-2">
+                          <NavLink
+                            to={pathFactory.questionLanding(
+                              li.id,
+                              li.url_title,
+                            )}
+                            className="d-block small text-body"
+                            dangerouslySetInnerHTML={{ __html: li.description }}
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                        </div>
+                      )}
 
-                  <div className="question-tags mb-12">
-                    {Array.isArray(li.tags)
-                      ? li.tags.map((tag, index) => {
-                          return (
-                            <Tag
-                              key={tag.slug_name}
-                              className={`${
-                                li.tags.length - 1 === index ? '' : 'me-1'
-                              }`}
-                              data={tag}
-                            />
-                          );
-                        })
-                      : null}
-                  </div>
-                  <div className="small text-secondary">
-                    <Counts
-                      data={{
-                        votes: li.vote_count,
-                        answers: li.answer_count,
-                        views: li.view_count,
-                      }}
-                      isAccepted={li.accepted_answer_id >= 1}
-                      className="mt-2 mt-md-0"
-                    />
+                      <div className="question-tags mb-12">
+                        {Array.isArray(li.tags)
+                          ? li.tags.map((tag, index) => {
+                              return (
+                                <Tag
+                                  key={tag.slug_name}
+                                  className={`${
+                                    li.tags.length - 1 === index ? '' : 'me-1'
+                                  }`}
+                                  data={tag}
+                                />
+                              );
+                            })
+                          : null}
+                      </div>
+                      <div className="small text-secondary">
+                        <Counts
+                          data={{
+                            votes: li.vote_count,
+                            answers: li.answer_count,
+                            views: li.view_count,
+                          }}
+                          isAccepted={li.accepted_answer_id >= 1}
+                          className="mt-2 mt-md-0"
+                        />
+                      </div>
+                    </div>
+                    {li.thumbnail ? (
+                      <div className="question-thumb d-none d-sm-block flex-shrink-0">
+                        <img
+                          src={li.thumbnail}
+                          // Decorative here: the title beside it already names
+                          // the post, so announcing the filename would only add
+                          // noise for a screen reader.
+                          alt=""
+                          loading="lazy"
+                        />
+                      </div>
+                    ) : null}
                   </div>
                 </ListGroup.Item>
               );

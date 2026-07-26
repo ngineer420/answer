@@ -45,6 +45,11 @@ var (
 	reSpace        = regexp.MustCompile(` +`)
 	reSpaceReplace = " "
 
+	// Matches the src of an <img> in rendered post HTML. Deliberately tolerant
+	// about attribute order and quoting, because this runs over output from the
+	// Markdown renderer and from pasted HTML alike.
+	reFirstImage = regexp.MustCompile(`(?is)<img[^>]+?src\s*=\s*["']([^"']+)["']`)
+
 	spaceReplacer = strings.NewReplacer(
 		"\n", " ",
 		"\r", " ",
@@ -160,6 +165,31 @@ func cutLongTitle(title string) string {
 // FetchExcerpt return the excerpt from the HTML string
 func FetchExcerpt(html, trimMarker string, limit int) (text string) {
 	return FetchRangedExcerpt(html, trimMarker, 0, limit)
+}
+
+// FetchFirstImage returns the src of the first image in the rendered post HTML,
+// or an empty string when there is none.
+//
+// It exists so a question list can show what a post is actually about. On a site
+// where people diagnose plants from photographs, the image is the content: the
+// excerpt beside it is produced by FetchExcerpt, which strips all markup, so a
+// post consisting mostly of a photo yields an empty description and a list row
+// that says nothing.
+//
+// Inline data: URIs are skipped. They would be embedded in full in every list
+// response, and a single pasted screenshot can run to megabytes.
+func FetchFirstImage(html string) string {
+	if len(html) == 0 {
+		return ""
+	}
+	for _, m := range reFirstImage.FindAllStringSubmatch(html, -1) {
+		src := strings.TrimSpace(m[1])
+		if src == "" || strings.HasPrefix(strings.ToLower(src), "data:") {
+			continue
+		}
+		return src
+	}
+	return ""
 }
 
 // findFirstMatchedWord returns the first matched word and its index

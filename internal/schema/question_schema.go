@@ -386,15 +386,20 @@ const (
 )
 
 type QuestionPageResp struct {
-	ID          string     `json:"id" `
-	CreatedAt   int64      `json:"created_at"`
-	Title       string     `json:"title"`
-	UrlTitle    string     `json:"url_title"`
-	Description string     `json:"description"`
-	Pin         int        `json:"pin"`  // 1: unpin, 2: pin
-	Show        int        `json:"show"` // 0: show, 1: hide
-	Status      int        `json:"status"`
-	Tags        []*TagResp `json:"tags"`
+	ID          string `json:"id" `
+	CreatedAt   int64  `json:"created_at"`
+	Title       string `json:"title"`
+	UrlTitle    string `json:"url_title"`
+	Description string `json:"description"`
+	// Thumbnail is the first image in the post, for list rows that would
+	// otherwise show nothing: Description is stripped of all markup, so a post
+	// that is mostly a photograph produces an empty excerpt. Empty when the post
+	// has no image.
+	Thumbnail string     `json:"thumbnail"`
+	Pin       int        `json:"pin"`  // 1: unpin, 2: pin
+	Show      int        `json:"show"` // 0: show, 1: hide
+	Status    int        `json:"status"`
+	Tags      []*TagResp `json:"tags"`
 
 	// question statistical information
 	ViewCount       int `json:"view_count"`

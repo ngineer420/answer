@@ -374,6 +374,7 @@ func (qs *QuestionCommon) FormatQuestionsPage(
 			Title:            questionInfo.Title,
 			UrlTitle:         htmltext.UrlTitle(questionInfo.Title),
 			Description:      htmltext.FetchExcerpt(questionInfo.ParsedText, "...", 240),
+			Thumbnail:        htmltext.FetchFirstImage(questionInfo.ParsedText),
 			Status:           questionInfo.Status,
 			ViewCount:        questionInfo.ViewCount,
 			UniqueViewCount:  questionInfo.UniqueViewCount,

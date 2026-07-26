@@ -1,0 +1,47 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+// Deliberately minimal: enough that a thumbnail is correctly sized and cropped
+// out of the box, and no further. Sites restyle this from their own stylesheet,
+// so anything opinionated here would only be something they have to undo.
+.question-thumb {
+  width: 6.5rem;
+
+  img {
+    display: block;
+    width: 100%;
+    // A fixed box with object-fit, because posts carry whatever the grower's
+    // phone produced -- portrait, panorama, screenshot. Without it, row heights
+    // follow the aspect ratio of the upload and the list stops scanning.
+    height: 4.875rem; // 4:3
+    object-fit: cover;
+    border-radius: 0.375rem;
+    background-color: var(--bs-tertiary-bg);
+  }
+}
+
+@media (max-width: 575.98px) {
+  .question-thumb {
+    width: 4.5rem;
+
+    img {
+      height: 3.375rem;
+    }
+  }
+}
