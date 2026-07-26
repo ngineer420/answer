@@ -251,6 +251,9 @@ const Layout: FC = () => {
             if (segments[0] === 'questions') {
               return segments.length > 1 ? 'question' : 'questions';
             }
+            if (segments[0] === 'tags') {
+              return segments.length > 1 ? 'tag' : 'tags';
+            }
             return segments[0];
           })()}
           className={classnames(

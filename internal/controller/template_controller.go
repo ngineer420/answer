@@ -686,11 +686,19 @@ func routeNameFromPath(path string) string {
 	if len(segments) == 0 {
 		return "home"
 	}
-	if segments[0] == "questions" {
+	// A detail page shares its first segment with its list page, so depth is what
+	// separates them.
+	switch segments[0] {
+	case "questions":
 		if len(segments) > 1 {
 			return "question"
 		}
 		return "questions"
+	case "tags":
+		if len(segments) > 1 {
+			return "tag"
+		}
+		return "tags"
 	}
 	return segments[0]
 }
