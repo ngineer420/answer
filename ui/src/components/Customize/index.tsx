@@ -132,16 +132,22 @@ const Index: FC = () => {
   const { pathname } = useLocation();
 
   useEffect(() => {
-    const isSeo = document.querySelector('meta[name="go-template"]');
-    if (!isSeo) {
-      setTimeout(() => {
-        handleCustomHead(custom_head);
-      }, 1000);
-      handleCustomHeader(custom_header);
-      handleCustomFooter(custom_footer);
-    } else {
-      isSeo.remove();
-    }
+    // The marker means the server already rendered this page's custom areas.
+    // It is removed either way, but injection still has to run: the header area
+    // is rendered inside #root, and React replaces #root's contents when it
+    // takes over, so anything the server put there is gone by now. Skipping
+    // because "the server did it" leaves the page with no custom header at all.
+    //
+    // Re-injecting is safe. renderCustomArea brackets its output with comment
+    // markers and clears whatever sits between them first, so running twice
+    // replaces rather than duplicates.
+    document.querySelector('meta[name="go-template"]')?.remove();
+
+    setTimeout(() => {
+      handleCustomHead(custom_head);
+    }, 1000);
+    handleCustomHeader(custom_header);
+    handleCustomFooter(custom_footer);
   }, [custom_head, custom_header, custom_footer]);
 
   useEffect(() => {
