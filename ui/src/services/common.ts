@@ -21,12 +21,23 @@ import qs from 'qs';
 import useSWR from 'swr';
 
 import request from '@/utils/request';
+import { shrinkImageForUpload } from '@/utils/shrinkImage';
 import type * as Type from '@/common/interface';
 
-export const uploadImage = (params: { file: File; type: Type.UploadType }) => {
+export const uploadImage = async (params: {
+  file: File;
+  type: Type.UploadType;
+}) => {
+  // Shrink before sending. Branding is exempt: those assets are prepared at an
+  // exact size and should arrive as they were made.
+  const file =
+    String(params.type) === 'branding'
+      ? params.file
+      : await shrinkImageForUpload(params.file);
+
   const form = new FormData();
   form.append('source', String(params.type));
-  form.append('file', params.file);
+  form.append('file', file);
   return request.post('/answer/api/v1/file', form);
 };
 
