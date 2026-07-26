@@ -24,6 +24,8 @@ import { customizeStore } from '@/stores';
 
 const CUSTOM_MARK_HEAD = 'customize_head';
 const CUSTOM_MARK_HEADER = 'customize_header';
+// The element the layout renders below the site header for this content.
+export const CUSTOM_HEADER_SLOT_ID = 'custom-header-slot';
 const CUSTOM_MARK_FOOTER = 'customize_footer';
 
 const makeMarker = (mark) => {
@@ -105,7 +107,16 @@ const handleCustomHead = (content) => {
 };
 
 const handleCustomHeader = (content) => {
-  const el = document.body;
+  // Prefer the slot the layout provides, which sits below the site header.
+  // Injecting at the top of <body> puts custom header content above the nav
+  // bar, outside the app root entirely, so it cannot be moved back into place
+  // with CSS -- the nav bar and the page are both inside #root and the injected
+  // node is a sibling of it. Anything a site wants under its own header, which
+  // is most things, was therefore unreachable.
+  //
+  // Falls back to <body> when the slot is absent, so this is a no-op for any
+  // layout that has not opted in.
+  const el = document.getElementById(CUSTOM_HEADER_SLOT_ID) || document.body;
   renderCustomArea(el, CUSTOM_MARK_HEADER, 'afterbegin', content);
 };
 

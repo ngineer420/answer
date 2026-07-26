@@ -211,6 +211,10 @@ const Layout: FC = () => {
           revalidateOnFocus: false,
         }}>
         <Header />
+        {/* Where custom header HTML is injected. Sits below the site header
+            rather than above it, which is where a site actually wants a banner;
+            see handleCustomHeader in components/Customize. */}
+        <div id="custom-header-slot" />
         <div
           // Which page this is, for stylesheets and for the custom header and
           // footer areas, which are injected site-wide and otherwise have no way
