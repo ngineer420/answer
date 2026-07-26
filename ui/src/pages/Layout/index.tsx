@@ -212,6 +212,19 @@ const Layout: FC = () => {
         }}>
         <Header />
         <div
+          // Which page this is, for stylesheets and for the custom header and
+          // footer areas, which are injected site-wide and otherwise have no way
+          // to tell one route from another. A detail page shares its first
+          // segment with its list page, so depth is what separates /questions
+          // from /questions/<id>.
+          data-route={(() => {
+            const segments = location.pathname.split('/').filter(Boolean);
+            if (segments.length === 0) return 'home';
+            if (segments[0] === 'questions') {
+              return segments.length > 1 ? 'question' : 'questions';
+            }
+            return segments[0];
+          })()}
           className={classnames(
             'position-relative page-wrap d-flex flex-column flex-fill',
             layout === 'Fixed-width' ? 'container-xxl' : '',

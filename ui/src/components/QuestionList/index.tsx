@@ -22,6 +22,8 @@ import { ListGroup, Dropdown } from 'react-bootstrap';
 import { NavLink, useSearchParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
+import classNames from 'classnames';
+
 import { pathFactory } from '@/router/pathFactory';
 import {
   Tag,
@@ -154,7 +156,14 @@ const QuestionList: FC<Props> = ({
                       pathFactory.questionLanding(li.id, li.url_title),
                     )
                   }
-                  className="py-3 px-2 border-start-0 border-end-0 position-relative pointer">
+                  // An unanswered question is the one row a passing reader can
+                  // still act on, but nothing in the markup distinguishes it:
+                  // the count is text, and a zero looks like any other number.
+                  // The class lets a stylesheet say so.
+                  className={classNames(
+                    'py-3 px-2 border-start-0 border-end-0 position-relative pointer',
+                    !li.answer_count && 'question-unanswered',
+                  )}>
                   <div className="d-flex align-items-start gap-3">
                     <div className="flex-grow-1 min-w-0">
                       <div className="d-flex flex-wrap text-secondary small mb-12">
