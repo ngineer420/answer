@@ -39,6 +39,7 @@ import {
   CustomizeTheme,
   PageTags,
   HttpErrorContent,
+  RequestProgress,
 } from '@/components';
 import { LoginToContinueModal, BadgeModal } from '@/components/Modal';
 import { changeTheme, Storage, scrollToElementTop } from '@/utils';
@@ -222,6 +223,7 @@ const Layout: FC = () => {
         value={{
           revalidateOnFocus: false,
         }}>
+        <RequestProgress />
         <Header />
         {/* Custom header content, below the site header rather than above it,
             which is where a site actually wants a banner.

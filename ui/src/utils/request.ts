@@ -32,6 +32,7 @@ import { RouteAlias } from '@/router/alias';
 import { getCurrentLang } from '@/utils/localize';
 
 import Storage from './storage';
+import { requestStarted, requestFinished } from './pendingRequests';
 import { floppyNavigation } from './floppyNavigation';
 import { isIgnoredPath, IGNORE_PATH_LIST } from './guard';
 
@@ -57,6 +58,7 @@ class Request {
     this.instance = axios.create(config);
     this.instance.interceptors.request.use(
       (requestConfig: InternalAxiosRequestConfig) => {
+        requestStarted();
         const token = Storage.get(LOGGED_TOKEN_STORAGE_KEY) || '';
         const lang = getCurrentLang();
         requestConfig.headers.set('Authorization', token);
@@ -64,12 +66,14 @@ class Request {
         return requestConfig;
       },
       (err: AxiosError) => {
+        requestFinished();
         console.error('request interceptors error:', err);
       },
     );
 
     this.instance.interceptors.response.use(
       (res: AxiosResponse) => {
+        requestFinished();
         const { status, data } = res.data;
 
         if (status === 204) {
@@ -79,6 +83,7 @@ class Request {
         return data;
       },
       (error) => {
+        requestFinished();
         const {
           status,
           data: errBody,

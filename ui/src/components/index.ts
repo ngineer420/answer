@@ -125,3 +125,4 @@ export {
   TabNav,
 };
 export type { EditorRef, JSONSchema, UISchema };
+export { default as RequestProgress } from './RequestProgress';
